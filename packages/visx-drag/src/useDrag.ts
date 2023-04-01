@@ -42,6 +42,7 @@ export type UseDragOptions = {
   };
   /** Limit drag to an SVG path. Overrides `restrict` constraints. */
   restrictToPath?: SVGGeometryElement | null;
+  scale?: number;
 };
 
 export type DragState = {
@@ -80,6 +81,7 @@ export default function useDrag({
   isDragging,
   restrict = {},
   restrictToPath,
+  scale = 1,
 }: UseDragOptions | undefined = {}): UseDrag {
   // use ref to detect prop changes
   const positionPropsRef = useRef({ x, y, dx, dy });
@@ -144,10 +146,10 @@ export default function useDrag({
 
           return {
             isDragging: true,
-            dx: resetOnStart ? 0 : currState.dx,
-            dy: resetOnStart ? 0 : currState.dy,
-            x: resetOnStart ? dragPoint.x : dragPoint.x - currState.dx,
-            y: resetOnStart ? dragPoint.y : dragPoint.y - currState.dy,
+            dx: resetOnStart ? 0 : currState.dx / scale,
+            dy: resetOnStart ? 0 : currState.dy / scale,
+            x: resetOnStart ? dragPoint.x : dragPoint.x - currState.dx / scale,
+            y: resetOnStart ? dragPoint.y : dragPoint.y - currState.dy / scale,
           };
         },
         onDragStart &&
@@ -182,8 +184,8 @@ export default function useDrag({
           const dragPoint = restrictPoint(point, restrictToPathSamples, restrict);
           return {
             ...currState,
-            dx: dragPoint.x - x,
-            dy: dragPoint.y - y,
+            dx: (dragPoint.x - x) / scale,
+            dy: (dragPoint.y - y) / scale,
           };
         },
         onDragMove &&
